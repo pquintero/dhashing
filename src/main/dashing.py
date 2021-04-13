@@ -7,11 +7,11 @@ from pyspark.sql.types import StringType, IntegerType, StructType, StructField
 import pathlib
 
 CURRENT_PATH = pathlib.Path(__file__).parent.absolute()
+SALT = str("#8b%$K!z")
 
 
-def encrypt_value(mobno):
-    sha_value = hashlib.sha256(mobno.encode()).hexdigest()
-    # sha_value2 = hashlib.sha512()
+def encrypt_value(hashing_key):
+    sha_value = hashlib.sha512((hashing_key + SALT).encode()).hexdigest()
 
     return sha_value
 
@@ -19,15 +19,11 @@ def encrypt_value(mobno):
 spark_udf = udf(encrypt_value, StringType())
 
 if __name__ == '__main__':
-    print(" Hii")
 
     spark = SparkSession.builder \
         .master('local') \
         .appName('column_encryption') \
         .getOrCreate()
-
-    print(CURRENT_PATH)
-    # /Users/pquintero/github-workspace/dhasing/src/main
 
     df = spark.read.option("encoding", "UTF-8") \
         .csv("/Users/pquintero/github-workspace/dhasing/src/resources/people.csv"
